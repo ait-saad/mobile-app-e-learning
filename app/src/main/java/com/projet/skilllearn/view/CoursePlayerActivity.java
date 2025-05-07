@@ -29,6 +29,7 @@ import com.projet.skilllearn.model.Course;
 import com.projet.skilllearn.model.CourseSection;
 import com.projet.skilllearn.model.Note;
 import com.projet.skilllearn.utils.UserProgressManager;
+import com.projet.skilllearn.view.adapters.CoursePagerAdapter;
 import com.projet.skilllearn.view.adapters.CourseSectionAdapter;
 import com.projet.skilllearn.view.adapters.NoteAdapter;
 import com.projet.skilllearn.view.fragments.ContentFragment;

@@ -43,6 +43,13 @@
     <color name="colorCorrect">#4CAF50</color>
     <color name="colorIncorrect">#F44336</color>
 
+    <string name="edit_profile">Modifier le profil</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="statistics">Statistiques</string>
+    <string name="enrolled_courses">Cours suivis</string>
+    <string name="completed_courses">Cours terminés</string>
+
+    <string name="user">Mon profil</string>
     <string name="user_profile">Mon profil</string>
     <string name="progress_overall">Progression globale</string>
     <string name="achievements">Mes réussites</string>
@@ -51,6 +58,7 @@
     <string name="no_courses_enrolled">Vous n\'êtes inscrit à aucun cours</string>
     <string name="course_image">Image du cours</string>
     <string name="achievement_badge">Badge de réussite</string>
+    <string name="login_to_view_achievements">Connectez-vous pour voir vos badges et récompenses</string>
 
 </resources>
 

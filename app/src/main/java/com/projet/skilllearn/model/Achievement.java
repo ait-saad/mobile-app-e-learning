@@ -1,36 +1,36 @@
 package com.projet.skilllearn.model;
 
-/**
- * Modèle pour les succès (badges)
- */
 public class Achievement {
     private String id;
     private String title;
+    private String iconUrl;
     private String description;
     private String type;
     private long earnedAt;
-    private String iconUrl;
+    private boolean unlocked;
 
-    /**
-     * Constructeur par défaut (requis pour Firebase)
-     */
+    // Constructeur par défaut (requis pour Firebase)
     public Achievement() {
     }
 
-    /**
-     * Constructeur avec paramètres
-     * @param id ID du succès
-     * @param title Titre du succès
-     * @param description Description du succès
-     * @param type Type de succès (course_completion, milestone, etc.)
-     * @param earnedAt Timestamp de l'obtention
-     */
+    // Constructeur avec timestamp
     public Achievement(String id, String title, String description, String type, long earnedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.type = type;
         this.earnedAt = earnedAt;
+        this.unlocked = true; // Si on fournit un timestamp, considérer comme débloqué
+    }
+
+    // Constructeur avec unlocked
+    public Achievement(String id, String title, String description, String type, boolean unlocked) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.type = type;
+        this.unlocked = unlocked;
+        this.earnedAt = unlocked ? System.currentTimeMillis() : 0;
     }
 
     // Getters et Setters
@@ -74,10 +74,21 @@ public class Achievement {
         this.earnedAt = earnedAt;
     }
 
+    public boolean isUnlocked() {
+        return unlocked;
+    }
+
+    public void setUnlocked(boolean unlocked) {
+        this.unlocked = unlocked;
+        if (unlocked && earnedAt == 0) {
+            this.earnedAt = System.currentTimeMillis();
+        }
+    }
     public String getIconUrl() {
         return iconUrl;
     }
 
+    // Ajoutez ce setter pour iconUrl
     public void setIconUrl(String iconUrl) {
         this.iconUrl = iconUrl;
     }

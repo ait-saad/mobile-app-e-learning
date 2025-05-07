@@ -33,24 +33,6 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
         return new CourseViewHolder(view);
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
-        Course course = courses.get(position);
-
-        holder.tvTitle.setText(course.getTitle());
-        holder.tvDescription.setText(course.getDescription());
-        holder.tvDuration.setText(String.format(context.getString(R.string.duration_format), course.getDurationMinutes()));
-
-        // Charger l'image avec Picasso
-        if (course.getThumbnailUrl() != null && !course.getThumbnailUrl().isEmpty()) {
-            Picasso.get().load(course.getThumbnailUrl())
-                    .placeholder(R.drawable.placeholder_course)
-                    .error(R.drawable.error_course)
-                    .into(holder.ivThumbnail);
-        } else {
-            holder.ivThumbnail.setImageResource(R.drawable.placeholder_course);
-        }
-    }
 
     @Override
     public int getItemCount() {
@@ -67,6 +49,27 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             tvTitle = itemView.findViewById(R.id.tv_course_title);
             tvDescription = itemView.findViewById(R.id.tv_course_description);
             tvDuration = itemView.findViewById(R.id.tv_course_duration);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
+        Course course = courses.get(position);
+
+        holder.tvTitle.setText(course.getTitle());
+        holder.tvDescription.setText(course.getDescription());
+
+        // Utiliser getDurationMinutes()
+        holder.tvDuration.setText(String.format(context.getString(R.string.duration_format), course.getDurationMinutes()));
+
+        // Utiliser getImageUrl()
+        if (course.getImageUrl() != null && !course.getImageUrl().isEmpty()) {
+            Picasso.get().load(course.getImageUrl())
+                    .placeholder(R.drawable.placeholder_course)
+                    .error(R.drawable.error_course)
+                    .into(holder.ivThumbnail);
+        } else {
+            holder.ivThumbnail.setImageResource(R.drawable.placeholder_course);
         }
     }
 }

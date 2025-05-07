@@ -61,7 +61,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     // Picasso pour le chargement d'images
     implementation("com.squareup.picasso:picasso:2.8")
-
+    implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.google.android.exoplayer:exoplayer-core:2.19.1")
     implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
 

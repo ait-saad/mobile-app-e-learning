@@ -121,6 +121,7 @@ public class ProfileViewModel extends ViewModel {
                 true // Par défaut, débloqué
         ));
 
+        // Ajouter les autres achievements
         defaultAchievements.add(new Achievement(
                 "achievement2",
                 "Apprenti",

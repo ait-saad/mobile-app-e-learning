@@ -2,7 +2,7 @@ package com.projet.skilllearn.model;
 
 import androidx.annotation.NonNull;
 
-import com.projet.skilllearn.view.adapters.CourseAdapter;
+
 
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class Course {
     private int userProgress; // 0-100 pourcentage
     private long lastStudiedTimestamp;
     private boolean isEnrolled;
+    private List<CourseSection> sections;
 
     // Constructeur par défaut (requis pour Firebase)
     public Course() {
@@ -163,24 +164,13 @@ public class Course {
     public void setEnrolled(boolean enrolled) {
         isEnrolled = enrolled;
     }
-    @Override
-    public void onBindViewHolder(@NonNull CourseAdapter.CourseViewHolder holder, int position) {
-        Course course = courses.get(position);
 
-        holder.tvTitle.setText(course.getTitle());
-        holder.tvDescription.setText(course.getDescription());
-
-        // Modifier pour utiliser getDurationMinutes()
-        holder.tvDuration.setText(String.format(context.getString(R.string.duration_format), course.getDurationMinutes()));
-
-        // Modifier pour utiliser getImageUrl() au lieu de getThumbnailUrl()
-        if (course.getImageUrl() != null && !course.getImageUrl().isEmpty()) {
-            Picasso.get().load(course.getImageUrl())
-                    .placeholder(R.drawable.placeholder_course)
-                    .error(R.drawable.error_course)
-                    .into(holder.ivThumbnail);
-        } else {
-            holder.ivThumbnail.setImageResource(R.drawable.placeholder_course);
-        }
+    public List<CourseSection> getSections() {
+        return sections;
     }
+
+    public void setSections(List<CourseSection> sections) {
+        this.sections = sections;
+    }
+
 }
