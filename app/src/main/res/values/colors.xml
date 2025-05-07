@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="colorPrimary">#673AB7</color>
+    <color name="colorPrimaryDark">#512DA8</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!-- Autres couleurs de votre application -->
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="colorText">#333333</color>
+    <color name="colorTextLight">#757575</color>
+</resources>

@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">SkillLearn</string>
+    <string name="duration_format">Durée: %d min</string>
+    <string-array name="course_categories">
+        <item>Toutes les catégories</item>
+        <item>Programmation</item>
+        <item>Design</item>
+        <item>Marketing</item>
+        <item>Langue</item>
+        <item>Business</item>
+        <item>Développement personnel</item>
+    </string-array>
+
+    <!-- Niveaux des cours -->
+    <string-array name="course_levels">
+        <item>Tous les niveaux</item>
+        <item>Débutant</item>
+        <item>Intermédiaire</item>
+        <item>Expert</item>
+    </string-array>
+
+    <!-- Options de tri -->
+    <string-array name="course_sort_options">
+        <item>Trier par...</item>
+        <item>Durée (croissant)</item>
+        <item>Durée (décroissant)</item>
+        <item>Popularité</item>
+    </string-array>
+
+    <string name="content">Contenu</string>
+    <string name="notes">Notes</string>
+    <string name="quiz">Quiz</string>
+    <string name="previous_section">Section précédente</string>
+    <string name="next_section">Section suivante</string>
+    <string name="mark_complete">Marquer comme terminé</string>
+    <string name="section_icon">Icône de section</string>
+    <string name="new_note_hint">Ajouter une nouvelle note...</string>
+    <string name="add">Ajouter</string>
+    <string name="submit">Soumettre</string>
+    <string name="next">Suivant</string>
+
+    <!-- Couleurs pour le quiz -->
+    <color name="colorCorrect">#4CAF50</color>
+    <color name="colorIncorrect">#F44336</color>
+
+    <string name="user_profile">Mon profil</string>
+    <string name="progress_overall">Progression globale</string>
+    <string name="achievements">Mes réussites</string>
+    <string name="no_achievements">Vous n\'avez pas encore obtenu de badges</string>
+    <string name="my_courses">Mes cours</string>
+    <string name="no_courses_enrolled">Vous n\'êtes inscrit à aucun cours</string>
+    <string name="course_image">Image du cours</string>
+    <string name="achievement_badge">Badge de réussite</string>
+
+</resources>
+
