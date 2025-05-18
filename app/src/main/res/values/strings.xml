@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">SkillLearn</string>
+    <string name="login_subtitle">Connectez-vous pour accéder à des milliers de cours</string>
+    <string name="email">Email</string>
+    <string name="password">Mot de passe</string>
+    <string name="login">Se connecter</string>
+    <string name="register">Créer un compte</string>
+    <string name="or">ou</string>
     <string name="duration_format">Durée: %d min</string>
     <string-array name="course_categories">
         <item>Toutes les catégories</item>
@@ -10,7 +16,16 @@
         <item>Business</item>
         <item>Développement personnel</item>
     </string-array>
-
+    <string name="welcome_title">Bienvenue sur SkillLearn</string>
+    <string name="welcome_message">Découvrez de nouvelles compétences et améliorez vos connaissances avec notre sélection de cours.</string>
+    <string name="start_learning">Commencez à apprendre</string>
+    <string name="highlights_subtitle">Plus de 500 cours disponibles dans des domaines variés pour développer vos compétences</string>
+    <string name="explore_courses">Explorer les cours</string>
+    <string name="courses">Cours</string>
+    <string name="your_achievements">Vos badges</string>
+    <string name="recommended_courses">Recommandé pour vous</string>
+    <string name="continue_learning">Continuez à apprendre</string>
+    <string name="view_all">Voir tout</string>
     <!-- Niveaux des cours -->
     <string-array name="course_levels">
         <item>Tous les niveaux</item>
@@ -38,10 +53,30 @@
     <string name="add">Ajouter</string>
     <string name="submit">Soumettre</string>
     <string name="next">Suivant</string>
+    <string name="content_tab_description">Onglet de contenu du cours</string>
+    <string name="notes_tab_description">Onglet de notes personnelles</string>
+    <string name="quiz_tab_description">Onglet de quiz et évaluations</string>
+    <string name="tab_layout_description">Onglets de navigation du cours</string>
+    <string name="navigation_tabs">Onglets de navigation du contenu</string>
 
-    <!-- Couleurs pour le quiz -->
-    <color name="colorCorrect">#4CAF50</color>
-    <color name="colorIncorrect">#F44336</color>
+    <string name="previous">Précédent</string>
+    <string name="rewind">Revenir en arrière</string>
+    <string name="play">Lecture</string>
+    <string name="pause">Pause</string>
+    <string name="fast_forward">Avancer rapidement</string>
+    <string name="fullscreen">Plein écran</string>
+
+    <string name="students">Étudiants</string>
+    <string name="level">Niveau</string>
+    <string name="description">Description</string>
+    <string name="course_content">Contenu du cours</string>
+    <string name="start_course">Commencer le cours</string>
+
+    <string name="learning_progress">Progression d\'apprentissage</string>
+    <string name="account_settings">Paramètres du compte</string>
+    <string name="notifications">Notifications</string>
+    <string name="downloads">Téléchargements</string>
+    <string name="app_version">SkillLearn v1.0</string>
 
     <string name="edit_profile">Modifier le profil</string>
     <string name="logout">Se déconnecter</string>

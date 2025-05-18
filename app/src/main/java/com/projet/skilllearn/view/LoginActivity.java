@@ -2,7 +2,9 @@ package com.projet.skilllearn.view;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.transition.Fade;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -26,6 +28,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setAllowEnterTransitionOverlap(true);
+        getWindow().setEnterTransition(new Fade());
+        Window window = getWindow();
+        window.setStatusBarColor(getResources().getColor(R.color.colorPrimary, null));
         setContentView(R.layout.activity_login);
         try {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -53,19 +59,17 @@ public class LoginActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         btnLogin.setOnClickListener(v -> {
+            // Animation du bouton lorsqu'il est cliqué
+            btnLogin.setAlpha(0.7f);
+            btnLogin.animate().alpha(1.0f).setDuration(300).start();
+
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
-            // Ajoutez ce log
-            Log.d("LoginActivity", "Tentative de connexion avec email: " + email);
-
             if (validateInput(email, password)) {
                 try {
-                    // Ajoutez ce log
-                    Log.d("LoginActivity", "Validation réussie, appel de loginUser");
                     viewModel.loginUser(email, password);
                 } catch (Exception e) {
-                    // Ajoutez ce bloc pour capturer les erreurs
                     Log.e("LoginActivity", "Erreur lors de la connexion", e);
                     Toast.makeText(this, "Erreur: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }

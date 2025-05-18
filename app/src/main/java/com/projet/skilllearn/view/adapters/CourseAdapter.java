@@ -77,7 +77,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
             tvCourseLevel = itemView.findViewById(R.id.tv_course_level);
             progressBar = itemView.findViewById(R.id.progress_bar_course);
             tvProgressPercentage = itemView.findViewById(R.id.tv_progress_percentage);
-            tvCourseAuthor = itemView.findViewById(R.id.tv_course_author);
+            tvCourseAuthor = itemView.findViewById(R.id.tv_courses_title);
             tvEnrolledCount = itemView.findViewById(R.id.tv_enrolled_count);
 
             // Définir le gestionnaire de clics

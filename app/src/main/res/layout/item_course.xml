@@ -1,166 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_course"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/colorSurface"
     app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
-    app:cardBackgroundColor="@android:color/white">
+    app:cardElevation="2dp"
+    app:rippleColor="@color/colorPrimaryLight">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="12dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_course_image"
-            android:layout_width="130dp"
-            android:layout_height="130dp"
-            android:contentDescription="Image du cours"
+            android:layout_width="0dp"
+            android:layout_height="160dp"
+            android:contentDescription="@string/course_image"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/placeholder_course" />
 
-        <!-- Properly positioned thumbnail image -->
-        <ImageView
-            android:id="@+id/iv_course_thumbnail"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="6dp"
-            android:contentDescription="@string/course_image"
-            android:scaleType="centerCrop"
-            android:background="@drawable/circle_background"
-            android:elevation="4dp"
-            app:layout_constraintEnd_toEndOf="@id/iv_course_image"
+        <View
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:background="@drawable/image_gradient"
             app:layout_constraintBottom_toBottomOf="@id/iv_course_image"
-            tools:src="@drawable/placeholder_course" />
+            app:layout_constraintEnd_toEndOf="@id/iv_course_image"
+            app:layout_constraintStart_toStartOf="@id/iv_course_image" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_level"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:chipBackgroundColor="@color/colorWarning"
+            app:chipMinHeight="28dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Débutant" />
 
         <TextView
             android:id="@+id/tv_course_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:textColor="#212121"
+            android:textColor="@color/colorTextPrimary"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_course_image"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Introduction à Android" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_course_image"
+            tools:text="Introduction au développement Android" />
 
         <TextView
             android:id="@+id/tv_course_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
             android:ellipsize="end"
+            android:lineSpacingMultiplier="1.2"
             android:maxLines="2"
+            android:textColor="@color/colorTextSecondary"
             android:textSize="14sp"
-            android:textColor="#757575"
-            android:lineSpacingExtra="2sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_course_image"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_course_title"
-            tools:text="Apprenez à développer des applications Android de A à Z" />
+            tools:text="Apprenez à développer des applications Android de A à Z avec ce cours complet pour débutants" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/tv_course_category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="12dp"
-            android:textSize="12sp"
-            android:textColor="@android:color/white"
-            app:chipBackgroundColor="@color/colorPrimary"
-            app:chipMinHeight="28dp"
-            app:layout_constraintStart_toEndOf="@id/iv_course_image"
-            app:layout_constraintTop_toBottomOf="@id/tv_course_description"
-            tools:text="Programmation" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/tv_course_level"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:textSize="12sp"
-            android:textColor="@android:color/white"
-            app:chipBackgroundColor="#FF9800"
-            app:chipMinHeight="28dp"
-            app:layout_constraintStart_toEndOf="@id/tv_course_category"
-            app:layout_constraintTop_toTopOf="@id/tv_course_category"
-            tools:text="Débutant" />
-
-        <TextView
-            android:id="@+id/tv_course_duration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:drawablePadding="6dp"
-            android:textSize="12sp"
-            android:textColor="#616161"
-            app:drawableStartCompat="@drawable/ic_access_time"
-            app:layout_constraintStart_toEndOf="@id/iv_course_image"
-            app:layout_constraintTop_toBottomOf="@id/tv_course_category"
-            tools:text="120 min" />
+            android:background="@color/colorDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_course_description" />
 
-        <TextView
-            android:id="@+id/tv_course_author"
+        <LinearLayout
+            android:id="@+id/layout_info"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:textSize="13sp"
-            android:textStyle="italic"
-            android:textColor="#424242"
-            app:layout_constraintStart_toEndOf="@id/iv_course_image"
-            app:layout_constraintEnd_toStartOf="@id/tv_enrolled_count"
-            app:layout_constraintTop_toBottomOf="@id/tv_course_duration"
-            tools:text="Par: Prof. GUERMAH HATIM" />
-
-        <TextView
-            android:id="@+id/tv_enrolled_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:drawablePadding="6dp"
-            android:textColor="#424242"
-            android:textSize="13sp"
-            app:drawableStartCompat="@drawable/ic_people"
-            app:layout_constraintBottom_toBottomOf="@id/tv_course_author"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_course_author"
-            app:layout_constraintVertical_bias="0.0"
-            tools:text="250 inscrits" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_access_time"
+                    app:tint="@color/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/tv_course_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="13sp"
+                    tools:text="120 min" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_category"
+                    app:tint="@color/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/tv_course_category"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="13sp"
+                    tools:text="Programmation" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_people"
+                    app:tint="@color/colorPrimary" />
+
+                <TextView
+                    android:id="@+id/tv_enrolled_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textColor="@color/colorTextSecondary"
+                    android:textSize="13sp"
+                    tools:text="250 inscrits" />
+            </LinearLayout>
+        </LinearLayout>
 
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_bar_course"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="14dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginHorizontal="16dp"
             android:max="100"
-            app:indicatorColor="@color/colorAccent"
-            app:trackThickness="4dp"
-            app:trackCornerRadius="2dp"
             android:visibility="gone"
+            app:indicatorColor="@color/colorSuccess"
+            app:layout_constraintBottom_toTopOf="@id/layout_info"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_course_image"
-            app:layout_constraintTop_toBottomOf="@id/tv_course_author"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:trackCornerRadius="2dp"
+            app:trackThickness="4dp"
             tools:progress="75"
             tools:visibility="visible" />
 
@@ -168,14 +197,15 @@
             android:id="@+id/tv_progress_percentage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/colorSuccess"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:textColor="@color/colorAccent"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@id/progress_bar_course"
-            app:layout_constraintEnd_toEndOf="@id/progress_bar_course"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/progress_bar_course"
             tools:text="75%"
             tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

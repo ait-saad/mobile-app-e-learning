@@ -45,7 +45,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.CourseView
 
         public CourseViewHolder(@NonNull View itemView) {
             super(itemView);
-            ivThumbnail = itemView.findViewById(R.id.iv_course_thumbnail);
+            ivThumbnail = itemView.findViewById(R.id.iv_course_image);
             tvTitle = itemView.findViewById(R.id.tv_course_title);
             tvDescription = itemView.findViewById(R.id.tv_course_description);
             tvDuration = itemView.findViewById(R.id.tv_course_duration);

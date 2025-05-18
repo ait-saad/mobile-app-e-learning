@@ -2,12 +2,31 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#673AB7</color>
-    <color name="colorPrimaryDark">#512DA8</color>
-    <color name="colorAccent">#FF4081</color>
 
-    <!-- Autres couleurs de votre application -->
-    <color name="colorBackground">#FFFFFF</color>
-    <color name="colorText">#333333</color>
-    <color name="colorTextLight">#757575</color>
+    <!-- Palette principale mise à jour avec des couleurs plus modernes -->
+    <color name="colorPrimary">#4F46E5</color>
+    <color name="colorPrimaryDark">#4338CA</color>
+    <color name="colorPrimaryLight">#818CF8</color>
+    <color name="colorAccent">#F43F5E</color>
+
+    <!-- Couleurs secondaires -->
+    <color name="colorSecondary">#10B981</color>
+    <color name="colorSuccess">#22C55E</color>
+    <color name="colorError">#EF4444</color>
+    <color name="colorWarning">#F59E0B</color>
+    <color name="colorInfo">#3B82F6</color>
+
+    <!-- Couleurs de fond et texte -->
+    <color name="colorBackground">#F9FAFB</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorBackgroundDark">#F3F4F6</color>
+    <color name="colorTextPrimary">#111827</color>
+    <color name="colorTextSecondary">#4B5563</color>
+    <color name="colorTextHint">#9CA3AF</color>
+    <color name="colorDivider">#E5E7EB</color>
+
+    <!-- Couleurs spécifiques -->
+    <color name="colorBadgeBackground">#EDE9FE</color>
+    <color name="colorCorrect">#34D399</color>
+    <color name="colorIncorrect">#F87171</color>
 </resources>

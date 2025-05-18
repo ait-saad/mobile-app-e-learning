@@ -25,6 +25,8 @@ public class Course {
     private long lastStudiedTimestamp;
     private boolean isEnrolled;
     private List<CourseSection> sections;
+    private String authorName;
+
 
     // Constructeur par défaut (requis pour Firebase)
     public Course() {
@@ -59,6 +61,14 @@ public class Course {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 
     public String getDescription() {
