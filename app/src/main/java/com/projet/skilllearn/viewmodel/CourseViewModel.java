@@ -1,14 +1,25 @@
 package com.projet.skilllearn.viewmodel;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.projet.skilllearn.model.Course;
+import com.projet.skilllearn.model.CourseSection;
 import com.projet.skilllearn.repository.CourseRepository;
 import com.projet.skilllearn.utils.UserProgressManager;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -73,21 +84,88 @@ public class CourseViewModel extends ViewModel {
      * @param courseId ID du cours à sélectionner
      */
     public void selectCourse(String courseId) {
+        Log.d("CourseViewModel", "Sélection du cours avec ID: " + courseId);
         isLoading.setValue(true);
 
-        repository.getCourseById(courseId, new CourseRepository.CourseCallback() {
+        // Référence au cours dans la base de données
+        DatabaseReference courseRef = FirebaseDatabase.getInstance().getReference("courses").child(courseId);
+
+        courseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onCourseLoaded(Course course) {
-                selectedCourse.setValue(course);
-                isLoading.setValue(false);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                try {
+                    Course course = snapshot.getValue(Course.class);
+                    if (course != null) {
+                        Log.d("CourseViewModel", "Cours chargé: " + course.getTitle());
+                        course.setCourseId(courseId);
+
+                        // Maintenant, charge les sections séparément
+                        loadSectionsForCourse(course);
+                    } else {
+                        Log.e("CourseViewModel", "Cours non trouvé pour l'ID: " + courseId);
+                        errorMessage.setValue("Cours non trouvé");
+                        isLoading.setValue(false);
+                    }
+                } catch (Exception e) {
+                    Log.e("CourseViewModel", "Erreur lors du chargement du cours", e);
+                    errorMessage.setValue("Erreur: " + e.getMessage());
+                    isLoading.setValue(false);
+                }
             }
 
             @Override
-            public void onError(String message) {
-                errorMessage.setValue(message);
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("CourseViewModel", "Chargement du cours annulé: " + error.getMessage());
+                errorMessage.setValue(error.getMessage());
                 isLoading.setValue(false);
             }
         });
+    }
+
+    private void loadSectionsForCourse(@NonNull Course course) {
+        Log.d("CourseViewModel", "Chargement des sections pour le cours: " + course.getTitle());
+
+        // Requête pour obtenir les sections où courseId = course.getCourseId()
+        DatabaseReference sectionsRef = FirebaseDatabase.getInstance().getReference("sections");
+        sectionsRef.orderByChild("courseId").equalTo(course.getCourseId())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        List<CourseSection> sections = new ArrayList<>();
+
+                        for (DataSnapshot sectionSnapshot : snapshot.getChildren()) {
+                            try {
+                                Log.d("CourseViewModel", "Section trouvée: " + sectionSnapshot.getKey());
+                                CourseSection section = sectionSnapshot.getValue(CourseSection.class);
+                                if (section != null) {
+                                    sections.add(section);
+                                }
+                            } catch (Exception e) {
+                                Log.e("CourseViewModel", "Erreur lors du chargement d'une section", e);
+                            }
+                        }
+
+                        Log.d("CourseViewModel", "Nombre de sections chargées: " + sections.size());
+
+                        // Tri par orderIndex
+                        Collections.sort(sections, (s1, s2) ->
+                                Integer.compare(s1.getOrderIndex(), s2.getOrderIndex()));
+
+                        // Ajoute les sections au cours
+                        course.setSections(sections);
+
+                        // Mettre à jour le LiveData
+                        selectedCourse.setValue(course);
+                        isLoading.setValue(false);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("CourseViewModel", "Chargement des sections annulé: " + error.getMessage());
+                        errorMessage.setValue("Erreur lors du chargement des sections: " + error.getMessage());
+                        isLoading.setValue(false);
+                    }
+                });
     }
 
     /**

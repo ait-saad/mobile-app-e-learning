@@ -2,6 +2,7 @@ package com.projet.skilllearn.model;
 
 public class CourseSection {
     private String sectionId;
+    private String courseId;  // Ajout de cette propriété importante
     private String title;
     private String description;
     private String content;
@@ -14,8 +15,9 @@ public class CourseSection {
     public CourseSection() {
     }
 
-    public CourseSection(String sectionId, String title, String description) {
+    public CourseSection(String sectionId, String courseId, String title, String description) {
         this.sectionId = sectionId;
+        this.courseId = courseId;
         this.title = title;
         this.description = description;
     }
@@ -27,6 +29,15 @@ public class CourseSection {
 
     public void setSectionId(String sectionId) {
         this.sectionId = sectionId;
+    }
+
+    // Ajout des getter et setter pour courseId
+    public String getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(String courseId) {
+        this.courseId = courseId;
     }
 
     public String getTitle() {

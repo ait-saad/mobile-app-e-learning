@@ -38,6 +38,11 @@
     <string name="add">Ajouter</string>
     <string name="submit">Soumettre</string>
     <string name="next">Suivant</string>
+    <string name="content_tab_description">Onglet de contenu du cours</string>
+    <string name="notes_tab_description">Onglet de notes personnelles</string>
+    <string name="quiz_tab_description">Onglet de quiz et évaluations</string>
+    <string name="tab_layout_description">Onglets de navigation du cours</string>
+    <string name="navigation_tabs">Onglets de navigation du contenu</string>
 
     <!-- Couleurs pour le quiz -->
     <color name="colorCorrect">#4CAF50</color>

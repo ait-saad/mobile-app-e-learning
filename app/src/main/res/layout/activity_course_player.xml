@@ -6,12 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".view.CoursePlayerActivity">
 
-    <com.google.android.exoplayer2.ui.PlayerView
-        android:id="@+id/player_view"
+
+    <!-- Conteneur de vidéo unique qui contiendra soit ExoPlayer soit YouTube -->
+    <FrameLayout
+        android:id="@+id/video_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintDimensionRatio="16:9"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <!-- ExoPlayer pour les vidéos standards -->
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+
+        <!-- Conteneur pour le lecteur YouTube -->
+        <FrameLayout
+            android:id="@+id/youtube_player_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </FrameLayout>
+
 
     <TextView
         android:id="@+id/tv_title"
@@ -24,8 +44,9 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/player_view"
+        app:layout_constraintTop_toBottomOf="@id/video_container"
         tools:text="Titre de la section" />
+
 
     <TextView
         android:id="@+id/tv_description"
@@ -40,12 +61,15 @@
         app:layout_constraintTop_toBottomOf="@id/tv_title"
         tools:text="Description de la section" />
 
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:contentDescription="@string/navigation_tabs"
         app:layout_constraintTop_toBottomOf="@id/tv_description" />
+
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
@@ -56,12 +80,14 @@
         app:layout_constraintBottom_toTopOf="@id/rv_sections"
         app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_sections"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@id/navigation_controls" />
+
 
     <LinearLayout
         android:id="@+id/navigation_controls"
@@ -74,6 +100,7 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent">
 
+
         <ImageButton
             android:id="@+id/btn_previous"
             android:layout_width="48dp"
@@ -82,6 +109,7 @@
             android:contentDescription="@string/previous_section"
             android:src="@drawable/ic_previous" />
 
+
         <Button
             android:id="@+id/btn_mark_complete"
             android:layout_width="wrap_content"
@@ -89,6 +117,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:text="@string/mark_complete" />
+
 
         <ImageButton
             android:id="@+id/btn_next"
@@ -99,6 +128,7 @@
             android:src="@drawable/ic_next" />
     </LinearLayout>
 
+
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
@@ -108,5 +138,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
