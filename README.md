@@ -1,7 +1,7 @@
 # SkillLearn - Plateforme d'Apprentissage Mobile
 
 <div align="center">
-  <img src="https://github.com/username/skilllearn/raw/main/app/src/main/ic_launcher-playstore.png" alt="SkillLearn Logo" width="120" height="120"/>
+  <img src="C:\Users\saad\AndroidStudioProjects\SkillLearn\app\src\main\ic_launcher-playstore.png" alt="SkillLearn Logo" width="120" height="120"/>
   <h3>Développez vos compétences où que vous soyez</h3>
 </div>
 
