@@ -15,6 +15,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.projet.skilllearn.model.Course;
 import com.projet.skilllearn.model.CourseSection;
+import com.projet.skilllearn.model.Quiz;
 import com.projet.skilllearn.repository.CourseRepository;
 import com.projet.skilllearn.utils.UserProgressManager;
 
@@ -132,40 +133,119 @@ public class CourseViewModel extends ViewModel {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         List<CourseSection> sections = new ArrayList<>();
+                        final int[] sectionsToProcess = {(int) snapshot.getChildrenCount()};
+
+                        if (sectionsToProcess[0] == 0) {
+                            // Aucune section trouvée
+                            course.setSections(sections);
+                            selectedCourse.setValue(course);
+                            isLoading.setValue(false);
+                            return;
+                        }
 
                         for (DataSnapshot sectionSnapshot : snapshot.getChildren()) {
                             try {
                                 Log.d("CourseViewModel", "Section trouvée: " + sectionSnapshot.getKey());
                                 CourseSection section = sectionSnapshot.getValue(CourseSection.class);
                                 if (section != null) {
-                                    sections.add(section);
+                                    // Vérifier si la section a un quiz associé
+                                    String quizId = sectionSnapshot.child("quizId").getValue(String.class);
+
+                                    if (quizId != null && !quizId.isEmpty()) {
+                                        // Charger le quiz associé
+                                        loadQuizForSection(section, quizId, new QuizLoadCallback() {
+                                            @Override
+                                            public void onQuizLoaded(Quiz quiz) {
+                                                section.setQuiz(quiz);
+                                                sections.add(section);
+
+                                                // Vérifier si toutes les sections sont traitées
+                                                sectionsToProcess[0]--;
+                                                if (sectionsToProcess[0] == 0) {
+                                                    finalizeSectionsLoading(course, sections);
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        // Section sans quiz
+                                        sections.add(section);
+                                        sectionsToProcess[0]--;
+                                        if (sectionsToProcess[0] == 0) {
+                                            finalizeSectionsLoading(course, sections);
+                                        }
+                                    }
+                                } else {
+                                    sectionsToProcess[0]--;
+                                    if (sectionsToProcess[0] == 0) {
+                                        finalizeSectionsLoading(course, sections);
+                                    }
                                 }
                             } catch (Exception e) {
                                 Log.e("CourseViewModel", "Erreur lors du chargement d'une section", e);
+                                sectionsToProcess[0]--;
+                                if (sectionsToProcess[0] == 0) {
+                                    finalizeSectionsLoading(course, sections);
+                                }
                             }
                         }
-
-                        Log.d("CourseViewModel", "Nombre de sections chargées: " + sections.size());
-
-                        // Tri par orderIndex
-                        Collections.sort(sections, (s1, s2) ->
-                                Integer.compare(s1.getOrderIndex(), s2.getOrderIndex()));
-
-                        // Ajoute les sections au cours
-                        course.setSections(sections);
-
-                        // Mettre à jour le LiveData
-                        selectedCourse.setValue(course);
-                        isLoading.setValue(false);
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
                         Log.e("CourseViewModel", "Chargement des sections annulé: " + error.getMessage());
-                        errorMessage.setValue("Erreur lors du chargement des sections: " + error.getMessage());
+                        errorMessage.setValue(error.getMessage());
                         isLoading.setValue(false);
                     }
                 });
+    }
+
+    private void finalizeSectionsLoading(Course course, List<CourseSection> sections) {
+        // Tri par orderIndex
+        Collections.sort(sections, (s1, s2) ->
+                Integer.compare(s1.getOrderIndex(), s2.getOrderIndex()));
+
+        // Ajoute les sections au cours
+        course.setSections(sections);
+
+        // Mettre à jour le LiveData
+        selectedCourse.setValue(course);
+        isLoading.setValue(false);
+        Log.d("CourseViewModel", "Course sections loaded: " + sections.size() + " sections");
+    }
+
+    private interface QuizLoadCallback {
+        void onQuizLoaded(Quiz quiz);
+    }
+
+    private void loadQuizForSection(CourseSection section, String quizId, QuizLoadCallback callback) {
+        Log.d("CourseViewModel", "Chargement du quiz: " + quizId);
+        DatabaseReference quizRef = FirebaseDatabase.getInstance().getReference("quizzes").child(quizId);
+
+        quizRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                try {
+                    Quiz quiz = snapshot.getValue(Quiz.class);
+                    if (quiz != null) {
+                        Log.d("CourseViewModel", "Quiz chargé: " + quiz.getTitle() + ", Questions: " +
+                                (quiz.getQuestions() != null ? quiz.getQuestions().size() : "null"));
+                        callback.onQuizLoaded(quiz);
+                    } else {
+                        Log.e("CourseViewModel", "Quiz non trouvé pour l'ID: " + quizId);
+                        callback.onQuizLoaded(null);
+                    }
+                } catch (Exception e) {
+                    Log.e("CourseViewModel", "Erreur lors du chargement du quiz", e);
+                    callback.onQuizLoaded(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("CourseViewModel", "Chargement du quiz annulé: " + error.getMessage());
+                callback.onQuizLoaded(null);
+            }
+        });
     }
 
     /**

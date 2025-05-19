@@ -1,6 +1,8 @@
 package com.projet.skilllearn.view;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -24,33 +26,52 @@ public class MainActivity extends AppCompatActivity {
 
     // Modifiez la signature de la méthode pour accepter savedInstanceState
     private void setupBottomNavigation(Bundle savedInstanceState) {
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
+        try {
+            bottomNavigationView.setOnItemSelectedListener(item -> {
+                Fragment selectedFragment = null;
+                String fragmentTag = "";
 
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                selectedFragment = new HomeFragment();
-            } else if (itemId == R.id.nav_catalog) {
-                selectedFragment = new CatalogFragment();
-            } else if (itemId == R.id.nav_profile) {
-                selectedFragment = new ProfileFragment();
+                int itemId = item.getItemId();
+                if (itemId == R.id.nav_home) {
+                    selectedFragment = new HomeFragment();
+                    fragmentTag = "home";
+                } else if (itemId == R.id.nav_catalog) {
+                    selectedFragment = new CatalogFragment();
+                    fragmentTag = "catalog";
+                } else if (itemId == R.id.nav_profile) {
+                    selectedFragment = new ProfileFragment();
+                    fragmentTag = "profile";
+                }
+
+                if (selectedFragment != null) {
+                    try {
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, selectedFragment, fragmentTag)
+                                .commit();
+                        return true;
+                    } catch (Exception e) {
+                        Log.e("MainActivity", "Erreur lors du chargement du fragment: " + fragmentTag, e);
+                        Toast.makeText(this, "Erreur lors du chargement de la page", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }
+
+                return false;
+            });
+
+            // Fragment par défaut
+            if (savedInstanceState == null) {
+                try {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, new HomeFragment(), "home")
+                            .commit();
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Erreur lors du chargement du fragment par défaut", e);
+                    Toast.makeText(this, "Erreur lors du chargement de la page d'accueil", Toast.LENGTH_SHORT).show();
+                }
             }
-
-            if (selectedFragment != null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, selectedFragment)
-                        .commit();
-                return true;
-            }
-
-            return false;
-        });
-
-        // Fragment par défaut
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
-                    .commit();
+        } catch (Exception e) {
+            Log.e("MainActivity", "Erreur lors de la configuration de la navigation", e);
         }
     }
 }

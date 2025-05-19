@@ -1,56 +1,66 @@
 package com.projet.skilllearn.view;
 
-import android.content.Context;
+import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
-import androidx.recyclerview.widget.GridLayoutManager;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.projet.skilllearn.R;
-import com.squareup.picasso.Picasso;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.projet.skilllearn.R;
+import com.projet.skilllearn.view.adapters.AvatarAdapter;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class EditProfileActivity extends AppCompatActivity {
 
-    private ImageView ivProfilePic;
-    private EditText etName;
-    private Button btnSaveProfile, btnChangeAvatar;
+    private static final String TAG = "EditProfileActivity";
+    public static final String EXTRA_AVATAR_UPDATED = "avatar_updated";
+    public static final String EXTRA_SELECTED_AVATAR_INDEX = "selected_avatar_index";
+
+    private Toolbar toolbar;
+    private CircleImageView ivProfilePic;
+    private EditText etName, etEmail;
+    private TextView tvChangeAvatar;
+    private CardView cardProfilePic;
+    private MaterialButton btnSaveProfile;
     private ProgressBar progressBar;
 
     private FirebaseUser currentUser;
-    private int selectedAvatarResId = R.drawable.avatar_1; // Avatar par défaut
+    private DatabaseReference userRef;
 
-    // Tableau des ressources d'avatars disponibles
+    // Avatars disponibles (ajoutez vos propres ressources d'avatars)
     private final int[] avatarResources = {
             R.drawable.avatar_1,
             R.drawable.avatar_2,
             R.drawable.avatar_3,
             R.drawable.avatar_4,
             R.drawable.avatar_5
+            // Ajoutez vos avatars supplémentaires ici
     };
+
+    private int selectedAvatarIndex = 0;
+    private boolean avatarUpdated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,31 +68,81 @@ public class EditProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_profile);
 
         // Initialiser les vues
-        ivProfilePic = findViewById(R.id.iv_profile_pic);
-        etName = findViewById(R.id.et_name);
-        btnSaveProfile = findViewById(R.id.btn_save_profile);
-        btnChangeAvatar = findViewById(R.id.btn_change_avatar);
-        progressBar = findViewById(R.id.progress_bar);
+        initializeViews();
+
+        // Configurer la toolbar
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         // Obtenir l'utilisateur actuel
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (currentUser != null) {
-            // Afficher les informations actuelles
-            if (currentUser.getDisplayName() != null) {
-                etName.setText(currentUser.getDisplayName());
-            }
-
-            // Charger l'avatar actuellement sélectionné
-            loadCurrentAvatar();
-        } else {
-            // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+        if (currentUser == null) {
+            Toast.makeText(this, "Utilisateur non connecté", Toast.LENGTH_SHORT).show();
             finish();
+            return;
         }
 
-        // Configurer les écouteurs de clics
-        btnChangeAvatar.setOnClickListener(v -> showAvatarSelectionDialog());
+        // Référence à l'utilisateur dans la base de données
+        userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
 
+        // Récupérer l'avatar actuel de l'utilisateur
+        loadUserAvatar();
+
+        // Charger les informations du profil
+        loadUserProfile();
+
+        // Configurer les écouteurs de clic
+        setupClickListeners();
+    }
+
+    private void initializeViews() {
+        toolbar = findViewById(R.id.toolbar);
+        ivProfilePic = findViewById(R.id.iv_profile_pic);
+        etName = findViewById(R.id.et_name);
+        etEmail = findViewById(R.id.et_email);
+        tvChangeAvatar = findViewById(R.id.tv_change_avatar);
+        cardProfilePic = findViewById(R.id.card_profile_pic);
+        btnSaveProfile = findViewById(R.id.btn_save_profile);
+        progressBar = findViewById(R.id.progress_bar);
+    }
+
+    private void loadUserAvatar() {
+        userRef.child("avatarIndex").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Integer avatarIndex = dataSnapshot.getValue(Integer.class);
+                    if (avatarIndex != null && avatarIndex >= 0 && avatarIndex < avatarResources.length) {
+                        selectedAvatarIndex = avatarIndex;
+                        ivProfilePic.setImageResource(avatarResources[selectedAvatarIndex]);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(EditProfileActivity.this,
+                        "Erreur: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadUserProfile() {
+        // Afficher le nom de l'utilisateur
+        etName.setText(currentUser.getDisplayName());
+
+        // Afficher l'email (non modifiable)
+        etEmail.setText(currentUser.getEmail());
+        etEmail.setEnabled(false);
+    }
+
+    private void setupClickListeners() {
+        // Clic sur l'avatar ou le texte "Changer d'avatar"
+        View.OnClickListener avatarClickListener = v -> showAvatarSelectionDialog();
+        cardProfilePic.setOnClickListener(avatarClickListener);
+        tvChangeAvatar.setOnClickListener(avatarClickListener);
+
+        // Clic sur le bouton Enregistrer
         btnSaveProfile.setOnClickListener(v -> {
             String name = etName.getText().toString().trim();
             if (name.isEmpty()) {
@@ -94,142 +154,123 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void loadCurrentAvatar() {
-        // Récupérer l'index d'avatar stocké dans Firebase Database
-        FirebaseDatabase.getInstance().getReference("users")
-                .child(currentUser.getUid())
-                .child("avatarIndex")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        Integer avatarIndex = snapshot.getValue(Integer.class);
-                        if (avatarIndex != null && avatarIndex >= 0 && avatarIndex < avatarResources.length) {
-                            selectedAvatarResId = avatarResources[avatarIndex];
-                            ivProfilePic.setImageResource(selectedAvatarResId);
-                        } else {
-                            // Avatar par défaut
-                            ivProfilePic.setImageResource(avatarResources[0]);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        // Gérer l'erreur
-                        Toast.makeText(EditProfileActivity.this, "Erreur de chargement: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
     private void showAvatarSelectionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choisir un avatar");
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_avatar_selection, null);
+        builder.setView(dialogView);
 
-        // Créer une vue personnalisée avec les avatars
-        View view = getLayoutInflater().inflate(R.layout.dialog_avatar_selection, null);
-        builder.setView(view);
-
-        RecyclerView rvAvatars = view.findViewById(R.id.rv_avatars);
+        RecyclerView rvAvatars = dialogView.findViewById(R.id.rv_avatars);
         rvAvatars.setLayoutManager(new GridLayoutManager(this, 3));
 
-        // Adapter pour la liste d'avatars
-        AvatarAdapter adapter = new AvatarAdapter(this, avatarResources, position -> {
-            selectedAvatarResId = avatarResources[position];
-            ivProfilePic.setImageResource(selectedAvatarResId);
-            // Fermer le dialogue
-            builder.create().dismiss();
-        });
+        AvatarAdapter adapter = new AvatarAdapter(this, avatarResources, selectedAvatarIndex,
+                position -> {
+                    selectedAvatarIndex = position;
+                    ivProfilePic.setImageResource(avatarResources[selectedAvatarIndex]);
+                    avatarUpdated = true;
+                });
 
         rvAvatars.setAdapter(adapter);
-        builder.create().show();
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private void updateProfile(String name) {
-        progressBar.setVisibility(View.VISIBLE);
-        btnSaveProfile.setEnabled(false);
+        showProgress(true);
 
-        // Mettre à jour le nom dans Firebase Auth
+        // Mettre à jour le profil dans Firebase Authentication
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name)
                 .build();
 
         currentUser.updateProfile(profileUpdates)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // Trouver l'index de l'avatar sélectionné
-                        int avatarIndex = 0;
-                        for (int i = 0; i < avatarResources.length; i++) {
-                            if (avatarResources[i] == selectedAvatarResId) {
-                                avatarIndex = i;
-                                break;
-                            }
-                        }
-
-                        // Stocker l'index d'avatar dans la base de données
-                        FirebaseDatabase.getInstance().getReference("users")
-                                .child(currentUser.getUid())
-                                .child("avatarIndex")
-                                .setValue(avatarIndex)
-                                .addOnCompleteListener(task2 -> {
-                                    progressBar.setVisibility(View.GONE);
-                                    btnSaveProfile.setEnabled(true);
-
-                                    if (task2.isSuccessful()) {
-                                        Toast.makeText(EditProfileActivity.this, "Profil mis à jour", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                    } else {
-                                        Toast.makeText(EditProfileActivity.this, "Échec de la mise à jour: " + task2.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                    } else {
-                        progressBar.setVisibility(View.GONE);
-                        btnSaveProfile.setEnabled(true);
-                        Toast.makeText(EditProfileActivity.this, "Échec de la mise à jour: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
+                .addOnSuccessListener(aVoid -> {
+                    // Mettre à jour la base de données
+                    updateDatabaseProfile(name);
+                })
+                .addOnFailureListener(e -> {
+                    showProgress(false);
+                    Snackbar.make(btnSaveProfile, "Erreur: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
                 });
     }
 
-    // Adapter pour la sélection d'avatar
-    private static class AvatarAdapter extends RecyclerView.Adapter<AvatarAdapter.AvatarViewHolder> {
+    private void updateDatabaseProfile(String name) {
+        userRef.child("name").setValue(name);
 
-        private final Context context;
-        private final int[] avatars;
-        private final OnAvatarClickListener listener;
+        if (avatarUpdated) {
+            userRef.child("avatarIndex").setValue(selectedAvatarIndex)
+                    .addOnSuccessListener(aVoid -> {
+                        showProgress(false);
 
-        interface OnAvatarClickListener {
-            void onAvatarClick(int position);
+                        // Préparer les données à renvoyer
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra(EXTRA_AVATAR_UPDATED, true);
+                        resultIntent.putExtra(EXTRA_SELECTED_AVATAR_INDEX, selectedAvatarIndex);
+                        setResult(Activity.RESULT_OK, resultIntent);
+
+                        // Afficher un message et terminer l'activité
+                        Snackbar.make(btnSaveProfile, "Profil mis à jour avec succès", Snackbar.LENGTH_SHORT)
+                                .addCallback(new Snackbar.Callback() {
+                                    @Override
+                                    public void onDismissed(Snackbar snackbar, int event) {
+                                        finish();
+                                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                                    }
+                                }).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        showProgress(false);
+                        Snackbar.make(btnSaveProfile, "Erreur: " + e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    });
+        } else {
+            showProgress(false);
+
+            // Préparer les données à renvoyer
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra(EXTRA_AVATAR_UPDATED, false);
+            setResult(Activity.RESULT_OK, resultIntent);
+
+            // Afficher un message et terminer l'activité
+            Snackbar.make(btnSaveProfile, "Profil mis à jour avec succès", Snackbar.LENGTH_SHORT)
+                    .addCallback(new Snackbar.Callback() {
+                        @Override
+                        public void onDismissed(Snackbar snackbar, int event) {
+                            finish();
+                            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                        }
+                    }).show();
         }
+    }
 
-        AvatarAdapter(Context context, int[] avatars, OnAvatarClickListener listener) {
-            this.context = context;
-            this.avatars = avatars;
-            this.listener = listener;
-        }
+    private void showProgress(boolean show) {
+        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        btnSaveProfile.setEnabled(!show);
+    }
 
-        @NonNull
-        @Override
-        public AvatarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(context).inflate(R.layout.item_avatar, parent, false);
-            return new AvatarViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull AvatarViewHolder holder, int position) {
-            holder.ivAvatar.setImageResource(avatars[position]);
-            holder.itemView.setOnClickListener(v -> listener.onAvatarClick(position));
-        }
-
-        @Override
-        public int getItemCount() {
-            return avatars.length;
-        }
-
-        static class AvatarViewHolder extends RecyclerView.ViewHolder {
-            ImageView ivAvatar;
-
-            AvatarViewHolder(@NonNull View itemView) {
-                super(itemView);
-                ivAvatar = itemView.findViewById(R.id.iv_avatar);
-            }
+    @Override
+    public void onBackPressed() {
+        if (avatarUpdated) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Modifications non enregistrées")
+                    .setMessage("Vous avez modifié votre avatar. Voulez-vous enregistrer vos modifications?")
+                    .setPositiveButton("Enregistrer", (dialog, which) -> {
+                        String name = etName.getText().toString().trim();
+                        if (!name.isEmpty()) {
+                            updateProfile(name);
+                        } else {
+                            etName.setError("Le nom ne peut pas être vide");
+                        }
+                    })
+                    .setNegativeButton("Annuler", (dialog, which) -> {
+                        setResult(Activity.RESULT_CANCELED);
+                        finish();
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                    })
+                    .show();
+        } else {
+            setResult(Activity.RESULT_CANCELED);
+            finish();
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         }
     }
 }

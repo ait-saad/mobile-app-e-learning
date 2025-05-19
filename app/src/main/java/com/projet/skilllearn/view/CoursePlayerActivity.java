@@ -1,17 +1,13 @@
 package com.projet.skilllearn.view;
 
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -21,11 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,17 +39,13 @@ import com.projet.skilllearn.view.fragments.ContentFragment;
 import com.projet.skilllearn.view.fragments.QuizFragment;
 import com.projet.skilllearn.viewmodel.CourseViewModel;
 
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
-
 
 public class CoursePlayerActivity extends AppCompatActivity implements
         CourseSectionAdapter.OnSectionClickListener,
         Player.Listener {
-
 
     private FrameLayout videoContainer;
     private PlayerView playerView;
@@ -63,13 +55,13 @@ public class CoursePlayerActivity extends AppCompatActivity implements
     private TextView tvTitle;
     private TextView tvDescription;
     private ProgressBar progressBar;
-    private ImageButton btnPrevious;
-    private ImageButton btnNext;
-    private Button btnMarkComplete;
+    // Type modifié pour correspondre au XML
+    private MaterialButton btnPrevious;
+    private MaterialButton btnNext;
+    private MaterialButton btnMarkComplete;
     private ViewPager2 viewPager;
     private TabLayout tabLayout;
     private RecyclerView rvSections;
-
 
     private CourseViewModel viewModel;
     private UserProgressManager progressManager;
@@ -80,17 +72,14 @@ public class CoursePlayerActivity extends AppCompatActivity implements
     private boolean videoCompleted = false;
     private YouTubePlayer youTubePlayer;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_course_player);
 
-
         // Récupérer les identifiants depuis l'intent
         courseId = getIntent().getStringExtra("courseId");
         sectionId = getIntent().getStringExtra("sectionId");
-
 
         if (courseId == null) {
             Toast.makeText(this, "Erreur: ID de cours manquant", Toast.LENGTH_SHORT).show();
@@ -98,61 +87,55 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             return;
         }
 
-
         // Initialiser les vues
         initViews();
-
 
         // Initialiser le ViewModel
         viewModel = new ViewModelProvider(this).get(CourseViewModel.class);
 
-
         // Initialiser le gestionnaire de progrès
         progressManager = UserProgressManager.getInstance();
-
 
         // Initialiser les lecteurs vidéo
         initializePlayer();
 
-
         // Configurer les onglets et ViewPager
         setupViewPager();
 
-
         // Observer les données du ViewModel
         observeViewModel();
-
 
         // Charger le cours
         viewModel.selectCourse(courseId);
     }
 
-
     private void initViews() {
-        videoContainer = findViewById(R.id.video_container);
-        playerView = findViewById(R.id.player_view);
-        youtubePlayerContainer = findViewById(R.id.youtube_player_container);
-        tvTitle = findViewById(R.id.tv_title);
-        tvDescription = findViewById(R.id.tv_description);
-        progressBar = findViewById(R.id.progress_bar);
-        btnPrevious = findViewById(R.id.btn_previous);
-        btnNext = findViewById(R.id.btn_next);
-        btnMarkComplete = findViewById(R.id.btn_mark_complete);
-        viewPager = findViewById(R.id.view_pager);
-        tabLayout = findViewById(R.id.tab_layout);
-        rvSections = findViewById(R.id.rv_sections);
+        try {
+            videoContainer = findViewById(R.id.video_container);
+            playerView = findViewById(R.id.player_view);
+            youtubePlayerContainer = findViewById(R.id.youtube_player_container);
+            tvTitle = findViewById(R.id.tv_title);
+            tvDescription = findViewById(R.id.tv_description);
+            progressBar = findViewById(R.id.progress_bar);
+            btnPrevious = findViewById(R.id.btn_previous);
+            btnNext = findViewById(R.id.btn_next);
+            btnMarkComplete = findViewById(R.id.btn_mark_complete);
+            viewPager = findViewById(R.id.view_pager);
+            tabLayout = findViewById(R.id.tab_layout);
+            rvSections = findViewById(R.id.rv_sections);
 
+            // Configurer RecyclerView avec orientation horizontale comme spécifié dans le XML
+            rvSections.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        // Configurer RecyclerView
-        rvSections.setLayoutManager(new LinearLayoutManager(this));
-
-
-        // Configurer les listeners
-        btnPrevious.setOnClickListener(v -> navigateToPreviousSection());
-        btnNext.setOnClickListener(v -> navigateToNextSection());
-        btnMarkComplete.setOnClickListener(v -> markSectionAsCompleted());
+            // Configurer les listeners
+            btnPrevious.setOnClickListener(v -> navigateToPreviousSection());
+            btnNext.setOnClickListener(v -> navigateToNextSection());
+            btnMarkComplete.setOnClickListener(v -> markSectionAsCompleted());
+        } catch (Exception e) {
+            Toast.makeText(this, "Erreur d'initialisation: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
-
 
     private void initializePlayer() {
         player = new ExoPlayer.Builder(this).build();
@@ -160,43 +143,45 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         player.addListener(this);
     }
 
-
     private void setupViewPager() {
+        Log.d("CoursePlayerActivity", "Configuration du ViewPager");
+
+        // Configurer l'adaptateur
         CoursePagerAdapter pagerAdapter = new CoursePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
 
+        // Conserver les fragments en mémoire
+        viewPager.setOffscreenPageLimit(2);
 
         // Configurer les onglets
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             String tabText;
-            String contentDescription;
-
-
             switch (position) {
                 case 0:
                     tabText = getString(R.string.content);
-                    contentDescription = getString(R.string.content_tab_description);
                     break;
                 case 1:
                     tabText = getString(R.string.notes);
-                    contentDescription = getString(R.string.notes_tab_description);
                     break;
                 case 2:
                     tabText = getString(R.string.quiz);
-                    contentDescription = getString(R.string.quiz_tab_description);
                     break;
                 default:
                     tabText = "Tab " + (position + 1);
-                    contentDescription = "Tab " + (position + 1);
                     break;
             }
-
-
             tab.setText(tabText);
-            tab.setContentDescription(contentDescription);
         }).attach();
-    }
 
+        // Écouter les changements d'onglet
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                Log.d("CoursePlayerActivity", "Page sélectionnée: " + position);
+            }
+        });
+    }
 
     private String getTabContentDescription(int tabPosition) {
         switch (tabPosition) {
@@ -211,7 +196,6 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         }
     }
 
-
     private void observeViewModel() {
         // Observer le cours sélectionné
         viewModel.getSelectedCourse().observe(this, course -> {
@@ -220,12 +204,10 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             }
         });
 
-
         // Observer l'état de chargement
         viewModel.getIsLoading().observe(this, isLoading -> {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });
-
 
         // Observer les erreurs
         viewModel.getErrorMessage().observe(this, errorMessage -> {
@@ -236,93 +218,50 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         });
     }
 
-
     private void loadSections(Course course) {
-        Log.d("CoursePlayerActivity", "loadSections appelé pour le cours: " + course.getTitle());
-
         sections = course.getSections();
-
-        // Vérification des sections avec logging détaillé
-        if (sections == null) {
-            Log.e("CoursePlayerActivity", "La liste des sections est null pour le cours: " + course.getCourseId());
+        if (sections == null || sections.isEmpty()) {
             Toast.makeText(this, "Ce cours ne contient aucune section", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        if (sections.isEmpty()) {
-            Log.e("CoursePlayerActivity", "La liste des sections est vide pour le cours: " + course.getCourseId());
-            Toast.makeText(this, "Ce cours ne contient aucune section", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Log.d("CoursePlayerActivity", "Nombre de sections trouvées: " + sections.size());
 
         // Configurer l'adaptateur des sections
-        try {
-            CourseSectionAdapter adapter = new CourseSectionAdapter(this, sections, this);
-            rvSections.setAdapter(adapter);
-            Log.d("CoursePlayerActivity", "Adaptateur de sections configuré avec succès");
-        } catch (Exception e) {
-            Log.e("CoursePlayerActivity", "Erreur lors de la configuration de l'adaptateur", e);
-            Toast.makeText(this, "Erreur lors du chargement des sections", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        CourseSectionAdapter adapter = new CourseSectionAdapter(this, sections, this);
+        rvSections.setAdapter(adapter);
 
         // Déterminer l'index de la section initiale
         if (sectionId != null) {
-            Log.d("CoursePlayerActivity", "Recherche de la section spécifique avec ID: " + sectionId);
-            boolean sectionFound = false;
-
             for (int i = 0; i < sections.size(); i++) {
-                // Vérifier si la section a un ID
-                String currentSectionId = sections.get(i).getSectionId();
-                Log.d("CoursePlayerActivity", "Section " + i + " a l'ID: " + currentSectionId);
-
-                if (currentSectionId != null && currentSectionId.equals(sectionId)) {
+                if (sections.get(i).getSectionId().equals(sectionId)) {
                     currentSectionIndex = i;
-                    sectionFound = true;
-                    Log.d("CoursePlayerActivity", "Section trouvée à l'index: " + i);
                     break;
                 }
             }
-
-            if (!sectionFound) {
-                Log.w("CoursePlayerActivity", "Section avec ID " + sectionId + " non trouvée, utilisation de l'index 0");
-            }
-        } else {
-            Log.d("CoursePlayerActivity", "Aucun ID de section spécifié, utilisation de l'index 0");
         }
 
         // Charger la section initiale
-        Log.d("CoursePlayerActivity", "Chargement de la section à l'index: " + currentSectionIndex);
         loadSection(currentSectionIndex);
     }
-
 
     private void loadSection(int index) {
         if (index < 0 || index >= sections.size()) {
             return;
         }
 
-
         CourseSection section = sections.get(index);
         currentSectionIndex = index;
-
 
         // Mettre à jour l'interface
         tvTitle.setText(section.getTitle());
         tvDescription.setText(section.getDescription());
 
-
         // Mettre à jour le contenu des fragments
         refreshFragments(section);
-
 
         // Charger la vidéo si disponible
         String videoUrl = section.getVideoUrl();
         if (videoUrl != null && !videoUrl.isEmpty()) {
             videoContainer.setVisibility(View.VISIBLE);
-
 
             // Déterminer si c'est une vidéo YouTube ou une vidéo standard
             if (isYouTubeUrl(videoUrl)) {
@@ -335,16 +274,13 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             stopAllPlayers();
         }
 
-
         // Mettre à jour l'état des boutons de navigation
         updateNavigationButtons();
-
 
         // Réinitialiser l'état de complétion
         videoCompleted = false;
         updateCompleteButtonState();
     }
-
 
     private boolean isYouTubeUrl(String url) {
         String pattern = "(?:youtube\\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\\.be/)([^\"&?/\\s]{11})";
@@ -353,19 +289,16 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         return matcher.find();
     }
 
-
     private String getYouTubeVideoId(String url) {
         String pattern = "(?:youtube\\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\\.be/)([^\"&?/\\s]{11})";
         Pattern compiledPattern = Pattern.compile(pattern);
         Matcher matcher = compiledPattern.matcher(url);
-
 
         if (matcher.find()) {
             return matcher.group(1);
         }
         return null;
     }
-
 
     private void loadYouTubeVideo(String videoId) {
         if (videoId == null) {
@@ -374,14 +307,11 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             return;
         }
 
-
         // Arrêter d'abord tous les lecteurs
         stopAllPlayers();
 
-
         playerView.setVisibility(View.GONE);
         youtubePlayerContainer.setVisibility(View.VISIBLE);
-
 
         // Créer et initialiser le lecteur YouTube
         if (youtubePlayerView == null) {
@@ -390,14 +320,12 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             youtubePlayerContainer.addView(youtubePlayerView);
             getLifecycle().addObserver(youtubePlayerView);
 
-
             youtubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
                 @Override
                 public void onReady(@NonNull YouTubePlayer player) {
                     youTubePlayer = player;
                     player.loadVideo(videoId, 0);
                 }
-
 
                 @Override
                 public void onStateChange(@NonNull YouTubePlayer player, @NonNull PlayerConstants.PlayerState state) {
@@ -415,15 +343,12 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         }
     }
 
-
     private void loadStandardVideo(String videoUrl) {
         // Arrêter d'abord tous les lecteurs
         stopAllPlayers();
 
-
         playerView.setVisibility(View.VISIBLE);
         youtubePlayerContainer.setVisibility(View.GONE);
-
 
         MediaItem mediaItem = MediaItem.fromUri(Uri.parse(videoUrl));
         player.setMediaItem(mediaItem);
@@ -431,20 +356,17 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         player.play();
     }
 
-
     private void stopAllPlayers() {
         // Arrêter ExoPlayer
         if (player != null) {
             player.stop();
         }
 
-
         // Arrêter YouTube Player
         if (youTubePlayer != null) {
             youTubePlayer.pause();
         }
     }
-
 
     private void showVideoCompletedDialog() {
         new AlertDialog.Builder(this)
@@ -455,16 +377,12 @@ public class CoursePlayerActivity extends AppCompatActivity implements
                 .show();
     }
 
-
     private void refreshFragments(CourseSection section) {
         // Mettre à jour le fragment de contenu
         ContentFragment contentFragment = ContentFragment.getInstance();
         if (contentFragment != null) {
             contentFragment.updateContent(section.getContent());
         }
-
-
-
 
         // Mettre à jour le fragment de quiz
         QuizFragment quizFragment = QuizFragment.getInstance();
@@ -473,23 +391,14 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         }
     }
 
-
-
-
     private void updateNavigationButtons() {
         btnPrevious.setEnabled(currentSectionIndex > 0);
         btnNext.setEnabled(currentSectionIndex < sections.size() - 1);
     }
 
-
-
-
     private void updateCompleteButtonState() {
-
-
         btnMarkComplete.setEnabled(videoCompleted || videoContainer.getVisibility() == View.GONE);
     }
-
 
     private void navigateToPreviousSection() {
         if (currentSectionIndex > 0) {
@@ -497,13 +406,11 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         }
     }
 
-
     private void navigateToNextSection() {
         if (currentSectionIndex < sections.size() - 1) {
             loadSection(currentSectionIndex + 1);
         }
     }
-
 
     private void markSectionAsCompleted() {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -511,16 +418,12 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             return;
         }
 
-
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String sectionId = sections.get(currentSectionIndex).getSectionId();
 
-
         progressManager.markSectionCompleted(courseId, sectionId, sections.size());
 
-
         Toast.makeText(this, "Section marquée comme terminée", Toast.LENGTH_SHORT).show();
-
 
         // Vérifier s'il y a une autre section
         if (currentSectionIndex < sections.size() - 1) {
@@ -529,7 +432,6 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             showCourseCompletedDialog();
         }
     }
-
 
     private void showNextSectionDialog() {
         new AlertDialog.Builder(this)
@@ -540,9 +442,6 @@ public class CoursePlayerActivity extends AppCompatActivity implements
                 .show();
     }
 
-
-
-
     private void showCourseCompletedDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Cours terminé")
@@ -551,14 +450,10 @@ public class CoursePlayerActivity extends AppCompatActivity implements
                 .show();
     }
 
-
-
-
     @Override
     public void onSectionClick(int position) {
         loadSection(position);
     }
-
 
     @Override
     public void onPlaybackStateChanged(int playbackState) {
@@ -569,7 +464,6 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -579,7 +473,6 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         }
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -588,13 +481,11 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             player.pause();
         }
 
-
         // Mettre en pause YouTube si actif
         if (youTubePlayer != null) {
             youTubePlayer.pause();
         }
     }
-
 
     @Override
     protected void onDestroy() {
@@ -604,7 +495,6 @@ public class CoursePlayerActivity extends AppCompatActivity implements
             player.release();
             player = null;
         }
-
 
         // Libérer le lecteur YouTube
         if (youtubePlayerView != null) {

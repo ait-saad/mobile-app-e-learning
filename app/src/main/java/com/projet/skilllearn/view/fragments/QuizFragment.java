@@ -1,6 +1,7 @@
 package com.projet.skilllearn.view.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class QuizFragment extends Fragment {
+    private static final String TAG = "QuizFragment";
     private static QuizFragment instance;
     private TextView tvQuestion;
     private RadioGroup rgOptions;
@@ -51,13 +53,16 @@ public class QuizFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView appelé");
         return inflater.inflate(R.layout.fragment_quiz, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d(TAG, "onViewCreated appelé");
 
+        // Initialiser les vues
         tvQuestion = view.findViewById(R.id.tv_question);
         rgOptions = view.findViewById(R.id.rg_options);
         btnSubmit = view.findViewById(R.id.btn_submit);
@@ -65,6 +70,12 @@ public class QuizFragment extends Fragment {
         tvFeedback = view.findViewById(R.id.tv_feedback);
         tvScore = view.findViewById(R.id.tv_score);
 
+        // Afficher un message par défaut si aucun quiz n'est disponible
+        if (tvQuestion.getText().toString().isEmpty()) {
+            tvQuestion.setText("Chargement des questions...");
+        }
+
+        // Configurer les listeners
         btnSubmit.setOnClickListener(v -> checkAnswer());
         btnNext.setOnClickListener(v -> showNextQuestion());
 
@@ -75,28 +86,57 @@ public class QuizFragment extends Fragment {
     }
 
     public void updateQuiz(Quiz quiz) {
+        Log.d(TAG, "updateQuiz appelé avec quiz: " + (quiz != null ? quiz.getTitle() : "null"));
+
+        if (quiz == null) {
+            tvQuestion.setText("Aucun quiz disponible pour cette section");
+            rgOptions.setVisibility(View.GONE);
+            btnSubmit.setVisibility(View.GONE);
+            btnNext.setVisibility(View.GONE);
+            return;
+        }
+
         this.quiz = quiz;
         this.questions = quiz.getQuestions();
+
+        if (questions == null || questions.isEmpty()) {
+            Log.e(TAG, "Questions nulles ou vides");
+            tvQuestion.setText("Aucune question disponible pour ce quiz");
+            rgOptions.setVisibility(View.GONE);
+            btnSubmit.setVisibility(View.GONE);
+            btnNext.setVisibility(View.GONE);
+            return;
+        }
+
+        // Réinitialiser l'état
+        rgOptions.setVisibility(View.VISIBLE);
+        btnSubmit.setVisibility(View.VISIBLE);
+        btnNext.setVisibility(View.VISIBLE);
+
         this.currentQuestionIndex = 0;
         this.score = 0;
         this.answered = false;
 
         updateScoreDisplay();
-        if (questions != null && !questions.isEmpty()) {
-            showQuestion(currentQuestionIndex);
-        }
+        showQuestion(currentQuestionIndex);
     }
 
     private void showQuestion(int index) {
-        if (questions == null || index >= questions.size()) {
-            tvQuestion.setText("Pas de questions disponibles");
-            rgOptions.removeAllViews();
-            btnSubmit.setEnabled(false);
-            btnNext.setEnabled(false);
+        Log.d(TAG, "showQuestion appelé avec index: " + index);
+
+        if (questions == null) {
+            Log.e(TAG, "questions est null");
+            return;
+        }
+
+        if (index >= questions.size()) {
+            Log.e(TAG, "Index hors limites: " + index + " (total: " + questions.size() + ")");
             return;
         }
 
         QuizQuestion question = questions.get(index);
+        Log.d(TAG, "Question: " + question.getQuestion());
+
         tvQuestion.setText(question.getQuestion());
 
         // Réinitialiser les options
@@ -104,11 +144,16 @@ public class QuizFragment extends Fragment {
 
         // Ajouter les options
         List<String> options = question.getOptions();
+        Log.d(TAG, "Nombre d'options: " + options.size());
+
         for (int i = 0; i < options.size(); i++) {
             RadioButton rb = new RadioButton(requireContext());
             rb.setId(View.generateViewId());
             rb.setText(options.get(i));
+            rb.setTextSize(16);
+            rb.setPadding(0, 8, 0, 8);
             rgOptions.addView(rb);
+            Log.d(TAG, "Option ajoutée: " + options.get(i));
         }
 
         // Réinitialiser l'état
@@ -122,6 +167,8 @@ public class QuizFragment extends Fragment {
     }
 
     private void checkAnswer() {
+        Log.d(TAG, "checkAnswer appelé");
+
         if (answered || questions == null || currentQuestionIndex >= questions.size()) {
             return;
         }
@@ -146,6 +193,7 @@ public class QuizFragment extends Fragment {
 
         QuizQuestion question = questions.get(currentQuestionIndex);
         int correctIndex = question.getCorrectOptionIndex();
+        Log.d(TAG, "Option sélectionnée: " + selectedIndex + ", correcte: " + correctIndex);
 
         if (selectedIndex == correctIndex) {
             // Réponse correcte
@@ -175,6 +223,8 @@ public class QuizFragment extends Fragment {
     }
 
     private void showNextQuestion() {
+        Log.d(TAG, "showNextQuestion appelé");
+
         currentQuestionIndex++;
         updateScoreDisplay();
 
@@ -187,6 +237,8 @@ public class QuizFragment extends Fragment {
     }
 
     private void showQuizResult() {
+        Log.d(TAG, "showQuizResult appelé");
+
         double percentage = (double) score / questions.size() * 100;
 
         // Cacher les éléments du quiz
@@ -226,6 +278,8 @@ public class QuizFragment extends Fragment {
     }
 
     private void saveQuizResult(String userId, String courseId, String quizId, double percentage) {
+        Log.d(TAG, "saveQuizResult appelé");
+
         DatabaseReference resultRef = FirebaseDatabase.getInstance().getReference("quiz_results")
                 .child(userId).child(courseId).child(quizId);
 
@@ -235,6 +289,8 @@ public class QuizFragment extends Fragment {
         resultData.put("percentage", percentage);
         resultData.put("completedAt", System.currentTimeMillis());
 
-        resultRef.setValue(resultData);
+        resultRef.setValue(resultData)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Résultat du quiz enregistré avec succès"))
+                .addOnFailureListener(e -> Log.e(TAG, "Erreur lors de l'enregistrement du résultat", e));
     }
 }

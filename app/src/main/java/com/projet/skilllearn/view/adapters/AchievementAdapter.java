@@ -1,6 +1,7 @@
 package com.projet.skilllearn.view.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.ViewHolder> {
+    private static final String TAG = "AchievementAdapter";
 
     private final Context context;
     private List<Achievement> achievements;
@@ -30,27 +32,45 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
     }
 
     public void updateAchievements(List<Achievement> newAchievements) {
-        this.achievements = newAchievements;
-        notifyDataSetChanged();
+        try {
+            this.achievements = newAchievements;
+            notifyDataSetChanged();
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur lors de la mise à jour des achievements", e);
+        }
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_achievement, parent, false);
-        return new ViewHolder(view);
+        try {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_achievement, parent, false);
+            return new ViewHolder(view);
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur lors de la création du ViewHolder", e);
+            // Fallback sur une vue simple en cas d'erreur
+            View fallbackView = new View(context);
+            fallbackView.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            return new ViewHolder(fallbackView);
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Achievement achievement = achievements.get(position);
-        holder.bind(achievement);
+        try {
+            Achievement achievement = achievements.get(position);
+            holder.bind(achievement);
+        } catch (Exception e) {
+            Log.e(TAG, "Erreur lors du binding à la position " + position, e);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return achievements.size();
+        return achievements != null ? achievements.size() : 0;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -68,39 +88,68 @@ public class AchievementAdapter extends RecyclerView.Adapter<AchievementAdapter.
         }
 
         public void bind(Achievement achievement) {
-            tvTitle.setText(achievement.getTitle());
-            tvDescription.setText(achievement.getDescription());
-
-            // Formater la date
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-            String formattedDate = dateFormat.format(new Date(achievement.getEarnedAt()));
-            tvEarnedDate.setText("Obtenu le " + formattedDate);
-
-            // Charger l'icône du badge
-            if (achievement.getIconUrl() != null && !achievement.getIconUrl().isEmpty()) {
-                Glide.with(context)
-                        .load(achievement.getIconUrl())
-                        .placeholder(R.drawable.placeholder_badge)
-                        .error(R.drawable.default_badge)
-                        .into(ivBadge);
-            } else {
-                // Utiliser une icône par défaut en fonction du type de succès
-                int badgeResId;
-                switch (achievement.getType()) {
-                    case "course_completion":
-                        badgeResId = R.drawable.badge_course_completion;
-                        break;
-                    case "milestone":
-                        badgeResId = R.drawable.badge_milestone;
-                        break;
-                    case "quiz_master":
-                        badgeResId = R.drawable.badge_quiz;
-                        break;
-                    default:
-                        badgeResId = R.drawable.default_badge;
-                        break;
+            try {
+                if (achievement == null) {
+                    Log.e(TAG, "Achievement null lors du binding");
+                    return;
                 }
-                ivBadge.setImageResource(badgeResId);
+
+                // Vérifier que toutes les vues sont non nulles
+                if (tvTitle != null) {
+                    tvTitle.setText(achievement.getTitle());
+                }
+
+                if (tvDescription != null) {
+                    tvDescription.setText(achievement.getDescription());
+                }
+
+                // Formater la date
+                if (tvEarnedDate != null) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                    String formattedDate = dateFormat.format(new Date(achievement.getEarnedAt()));
+                    tvEarnedDate.setText("Obtenu le " + formattedDate);
+                }
+
+                // Charger l'icône du badge
+                if (ivBadge != null) {
+                    if (achievement.getIconUrl() != null && !achievement.getIconUrl().isEmpty()) {
+                        try {
+                            Glide.with(context)
+                                    .load(achievement.getIconUrl())
+                                    .placeholder(R.drawable.placeholder_badge)
+                                    .error(R.drawable.default_badge)
+                                    .into(ivBadge);
+                        } catch (Exception e) {
+                            Log.e(TAG, "Erreur lors du chargement de l'icône", e);
+                            ivBadge.setImageResource(R.drawable.default_badge);
+                        }
+                    } else {
+                        // Utiliser une icône par défaut en fonction du type de succès
+                        int badgeResId;
+                        String type = achievement.getType();
+                        if (type != null) {
+                            switch (type) {
+                                case "course_completion":
+                                    badgeResId = R.drawable.badge_course_completion;
+                                    break;
+                                case "milestone":
+                                    badgeResId = R.drawable.badge_milestone;
+                                    break;
+                                case "quiz_master":
+                                    badgeResId = R.drawable.badge_quiz;
+                                    break;
+                                default:
+                                    badgeResId = R.drawable.default_badge;
+                                    break;
+                            }
+                        } else {
+                            badgeResId = R.drawable.default_badge;
+                        }
+                        ivBadge.setImageResource(badgeResId);
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur lors du binding de l'achievement", e);
             }
         }
     }
