@@ -3,11 +3,13 @@ package com.projet.skilllearn.view;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -101,7 +103,14 @@ public class CoursePlayerActivity extends AppCompatActivity implements
 
         // Configurer les onglets et ViewPager
         setupViewPager();
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
+        // Activer le bouton de navigation vers le haut
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
         // Observer les données du ViewModel
         observeViewModel();
 
@@ -254,7 +263,13 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         // Mettre à jour l'interface
         tvTitle.setText(section.getTitle());
         tvDescription.setText(section.getDescription());
+        if (rvSections.getAdapter() instanceof CourseSectionAdapter) {
+            CourseSectionAdapter adapter = (CourseSectionAdapter) rvSections.getAdapter();
+            adapter.setSelectedPosition(index);
 
+            // Faire défiler jusqu'à la position sélectionnée
+            rvSections.smoothScrollToPosition(index);
+        }
         // Mettre à jour le contenu des fragments
         refreshFragments(section);
 
@@ -500,5 +515,14 @@ public class CoursePlayerActivity extends AppCompatActivity implements
         if (youtubePlayerView != null) {
             youtubePlayerView.release();
         }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            // Gestion du bouton retour dans la barre d'action
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

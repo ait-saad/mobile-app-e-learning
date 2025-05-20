@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Hauteur du ViewPager pour l'onglet Quiz -->
+    <dimen name="quiz_pager_height">500dp</dimen>
+    <!-- Hauteur normale du ViewPager -->
+    <dimen name="normal_pager_height">300dp</dimen>
+</resources>
