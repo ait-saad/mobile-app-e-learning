@@ -3,6 +3,7 @@ package com.projet.skilllearn.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -27,7 +28,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import androidx.appcompat.widget.Toolbar;
 public class CourseDetailActivity extends AppCompatActivity {
 
     private ImageView ivCourseImage;
@@ -50,6 +51,14 @@ public class CourseDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Erreur: Impossible de charger le cours", Toast.LENGTH_SHORT).show();
             finish();
             return;
+        }
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // Activer le bouton de navigation vers le haut
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
         // Initialiser les vues
@@ -227,4 +236,16 @@ public class CourseDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Erreur: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Gérer le clic sur le bouton de retour dans la toolbar
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Assurez-vous que onBackPressed() est correctement implémenté
+
 }

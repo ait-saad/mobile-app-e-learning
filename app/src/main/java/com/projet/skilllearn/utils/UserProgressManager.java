@@ -1,5 +1,9 @@
 package com.projet.skilllearn.utils;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -167,10 +171,15 @@ public class UserProgressManager {
      */
     public void markSectionCompleted(String courseId, String sectionId, int totalSections) {
         if (auth.getCurrentUser() == null) {
+            Log.e(TAG, "Utilisateur non connecté");
             return;
         }
 
         String userId = auth.getCurrentUser().getUid();
+
+        // Ajouter des logs pour déboguer
+        Log.d(TAG, "Marking section completed: userId=" + userId + ", courseId=" + courseId + ", sectionId=" + sectionId);
+
         DatabaseReference sectionRef = database.getReference("user_progress")
                 .child(userId).child(courseId).child("sections").child(sectionId);
 
@@ -178,12 +187,17 @@ public class UserProgressManager {
         sectionData.put("completed", true);
         sectionData.put("completedAt", System.currentTimeMillis());
 
-        sectionRef.setValue(sectionData).addOnSuccessListener(unused -> {
-            // Mettre à jour la progression globale
-            updateSectionProgress(courseId, totalSections);
-        });
+        // Assurez-vous que la référence est correcte
+        sectionRef.setValue(sectionData)
+                .addOnSuccessListener(unused -> {
+                    Log.d(TAG, "Section marquée comme terminée avec succès");
+                    // Mettre à jour la progression globale
+                    updateSectionProgress(courseId, totalSections);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Erreur lors du marquage de la section comme terminée", e);
+                });
     }
-
     /**
      * Récupère le progrès d'un utilisateur pour un cours spécifique
      * @param courseId ID du cours
@@ -333,6 +347,8 @@ public class UserProgressManager {
         }
 
         String userId = auth.getCurrentUser().getUid();
+        Log.d(TAG, "Updating section progress: userId=" + userId + ", courseId=" + courseId);
+
         DatabaseReference sectionsRef = database.getReference("user_progress")
                 .child(userId).child(courseId).child("sections");
 
@@ -340,6 +356,9 @@ public class UserProgressManager {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int completedSections = 0;
+                int totalChildren = (int) snapshot.getChildrenCount();
+
+                Log.d(TAG, "Found " + totalChildren + " sections in progress data");
 
                 for (DataSnapshot sectionSnapshot : snapshot.getChildren()) {
                     Boolean completed = sectionSnapshot.child("completed").getValue(Boolean.class);
@@ -348,17 +367,25 @@ public class UserProgressManager {
                     }
                 }
 
-                int percentage = (int) ((float) completedSections / totalSections * 100);
+                Log.d(TAG, "Completed sections: " + completedSections + "/" + totalSections);
+
+                // Calculer le pourcentage de progression
+                int percentage = (totalSections > 0) ?
+                        (int) ((float) completedSections / totalSections * 100) : 0;
+
+                // Mettre à jour la progression globale du cours
                 updateCourseProgress(courseId, percentage);
+
+                // Vérifier pour les accomplissements basés sur la progression
+                checkProgressAchievements(courseId, percentage);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Gérer l'erreur
+                Log.e(TAG, "Erreur lors de la récupération des sections:" +error.getMessage());
             }
         });
     }
-
     /**
      * Vérifie si un cours est complété et décerne un badge si nécessaire
      * @param courseId ID du cours
@@ -461,5 +488,35 @@ public class UserProgressManager {
                 // Gérer l'erreur
             }
         });
+    }
+    private void checkProgressAchievements(String courseId, int percentage) {
+        if (percentage >= 100) {
+            // Cours terminé - ajouter un badge d'accomplissement
+            DatabaseReference courseRef = database.getReference("courses").child(courseId);
+            courseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String courseTitle = snapshot.child("title").getValue(String.class);
+                    if (courseTitle != null) {
+                        // Créer un succès pour le cours terminé
+                        Achievement achievement = new Achievement(
+                                "course_completed_" + courseId,
+                                "Cours terminé : " + courseTitle,
+                                "Vous avez terminé le cours avec succès",
+                                "course_completion",
+                                System.currentTimeMillis()
+                        );
+
+                        // Ajouter le succès
+                        addAchievement(achievement);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Erreur lors de la récupération du titre du cours:" +error.getMessage());
+                }
+            });
+        }
     }
 }
