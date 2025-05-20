@@ -6,6 +6,7 @@
     <string name="login">Se connecter</string>
     <string name="register">Créer un compte</string>
     <string name="or">ou</string>
+    <string name="welcome_name">Bienvenue, %1$s!</string>
     <string name="duration_format">Durée: %d min</string>
     <string-array name="course_categories">
         <item>Toutes les catégories</item>

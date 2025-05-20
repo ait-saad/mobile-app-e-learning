@@ -37,7 +37,7 @@ public class CourseViewModel extends ViewModel {
 
     // LiveData pour l'état de chargement
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-
+    private final MutableLiveData<List<Course>> userCourses = new MutableLiveData<>();
     // LiveData pour les messages d'erreur
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
@@ -334,7 +334,27 @@ public class CourseViewModel extends ViewModel {
             isLoading.setValue(false);
         });
     }
+    public LiveData<List<Course>> getUserCourses() {
+        return userCourses;
+    }
 
+    public void getUserCourses(String userId) {
+        isLoading.setValue(true);  // Utiliser directement la variable isLoading
+
+        repository.getUserCourses(userId, new CourseRepository.CoursesCallback() {
+            @Override
+            public void onCoursesLoaded(List<Course> courses) {
+                userCourses.setValue(courses);
+                isLoading.setValue(false);  // Utiliser directement isLoading
+            }
+
+            @Override
+            public void onError(String message) {
+                errorMessage.setValue(message);  // Utiliser directement errorMessage
+                isLoading.setValue(false);  // Utiliser directement isLoading
+            }
+        });
+    }
     /**
      * Supprime un cours
      * @param courseId ID du cours à supprimer
@@ -468,21 +488,5 @@ public class CourseViewModel extends ViewModel {
      * Obtient les cours en cours d'un utilisateur
      * @param userId ID de l'utilisateur
      */
-    public void getUserCourses(String userId) {
-        isLoading.setValue(true);
 
-        repository.getUserCourses(userId, new CourseRepository.CoursesCallback() {
-            @Override
-            public void onCoursesLoaded(List<Course> courseList) {
-                courses.setValue(courseList);
-                isLoading.setValue(false);
-            }
-
-            @Override
-            public void onError(String message) {
-                errorMessage.setValue(message);
-                isLoading.setValue(false);
-            }
-        });
-    }
 }
